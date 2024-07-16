@@ -4,6 +4,19 @@ var sendBtn = document.getElementById('sendBtn');
 var textbox = document.getElementById('userInquiry');
 var chatContainer = document.getElementById('chatContainer');
 
+var user = {message:""};
+
+var arrayOfPossibleMessages = [
+    {"message":"how are you?", "response":"I'm great!"},
+    {"message":"hi", "response":"Hi!"},
+    {"message":"who are you?", "response":"I'm your assistant"},
+
+];
+
+setTimeout(function(){
+    chatBotSendMessage('Hi, What is your name?');
+},1000);
+
 
 function chatBotSendMessage(messageText){
     var messageElement = document.createElement('div');
@@ -16,6 +29,8 @@ function chatBotSendMessage(messageText){
 
     messageElement.innerHTML = '<span>ChatBot: </span>'+
     '<span style='+'margin-top:10px; padding:10px'+'>'+ messageText +'</span>';
+
+    messageElement.animate([{easing:'ease-in',opacity:0.4},{opacity:1}],{duration:1000});
 
     chatContainer.appendChild(messageElement);
 }
@@ -45,7 +60,31 @@ sendBtn.addEventListener('click', function(e){
     }else{
 
     let messageText = textbox.value;
+    user.message = messageText.toLowerCase();
     sendMessage(messageText);
     textbox.value='';
+
+    processMessage();
+
     }
     });
+
+    function processMessage(){
+        //array of results
+       var result = arrayOfPossibleMessages.filter(val=> val.message.includes(user.message));
+
+       if(result.length > 0){
+            var response = result[0].response;
+
+             setTimeout(function(){
+                 chatBotSendMessage(response);
+                },1000);
+    } else {
+
+        setTimeout(function(){
+            chatBotSendMessage("I don't understand.");
+           },1000);
+    }
+       
+
+    };
