@@ -5,7 +5,7 @@ var textbox = document.getElementById('userInquiry');
 var chatContainer = document.getElementById('chatContainer');
 
 var user = {message:"", counter:0};
-var httpRequest =
+var httpRequest;
 
 chatBotSendMessage("Please choose an option")
 
@@ -84,36 +84,58 @@ messageElement.animate([{easing:'ease-in',opacity:0.4},{opacity:1}],{duration:10
 };
 
 function handleWeatherResponse(){
-    if(httpRequest.readystate === XMLHttpRequest.DONE){
+    if(httpRequest.readyState === XMLHttpRequest.DONE){
         if(httpRequest.status === 200){
               console.log(httpRequest.responseText);
+              let response = JSON.parse(httpRequest.responseText);
+              //console.log(response);
+
+              let city = response.location.name;
+              let temp = response.current.temp_f;
+              let hum = response.current.humidity;
+              let icon ="http:" + response.current.condition.icon;
+
+              let messageToSend = "<br>";
+              messageToSend += "<span><img src=' "+ icon +" '></span>";
+              messageToSend += "<br>";
+              messageToSend += "City: " + city;
+              messageToSend += "<br>";
+              messageToSend += "Temperature: " + temp + "°F";
+              messageToSend += "<br>";
+              messageToSend += "Humidity: "+ hum  + "%";
+
+              chatBotSendMessage(messageToSend);
+
+              chatBotSendMessage("Please Choose an option.");
+              initializeOptions();
+              
         }else{
 
             alert("There was an unexpected error.");
-        };
-    };
+        }
+    }
 
-};
+}
 
 function getWeatherRequest(lat,long){
 
     httpRequest = new XMLHttpRequest();
 
-    httpRequest.onreadystatechange = handleWeatherResponse
-    httpRequest.open("GET",'https://api.weatherapi.com/v1/forecast.json?&key=be43167956334322af8222757230609&q=' + parseInt(lat) + ',' + parseInt(long));
+    httpRequest.onreadystatechange = handleWeatherResponse;
+    httpRequest.open("GET",'http://api.weatherapi.com/v1/current.json?key=be43167956334322af8222757230609&q=' + parseInt(lat) + ',' + parseInt(long));
     httpRequest.send();
 
-};
+}
 
 function getLocationAndWeather(){
-    navigator.geolocation.getCurrentPosition((pos)=>{
+    navigator.geolocation.getCurrentPosition((pos) => {
         let lat = pos.coords.latitude;
         let long = pos.coords.longitude;
 
         getWeatherRequest(lat,long);
-
     }, (err)=>{
         console.log(err);
+        
 
     });
 
@@ -123,25 +145,27 @@ function assistantResponse(messageText){
 
         var userChoice = parseInt(messageText.trim());
 
+        chatBotSendMessage("Please Wait...");
         switch(userChoice){
 
             case 1:
                 //get weather
                 //alert("you chose 1");
-                //get location then weather
                 getLocationAndWeather();
                     break;
             case 2:
                 //get sports
-                alert("you chose 2");
+                //alert("you chose 2");
+                window.open('https://www.google.com/search?q=sports');
                     break;
                  
             case 3:
                 //general news
-                alert("you chose 3");
+                //alert("you chose 3");
+                window.open('https://www.google.com/search?q=news');
                     break;
              default:
-                alert("default");
+                chatBotSendMessage("Please choose a vaild number.");
         }
 };
 
